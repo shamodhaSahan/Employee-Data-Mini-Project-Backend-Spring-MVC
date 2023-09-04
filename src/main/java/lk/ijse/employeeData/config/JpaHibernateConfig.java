@@ -12,6 +12,7 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 /**
@@ -20,8 +21,8 @@ import javax.sql.DataSource;
  * Time : 4:01 PM
  */
 
-@Configuration
-@PropertySource("classpath:application.properties")
+//@Configuration
+//@PropertySource("classpath:application.properties")
 public class JpaHibernateConfig {
     public final Environment env;
 
@@ -31,11 +32,11 @@ public class JpaHibernateConfig {
 
     // factory create
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(DataSource ds, JpaVendorAdapter jpa){
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(DataSource dataSource, JpaVendorAdapter jpaVendorAdapter){
         LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean();
-        bean.setPackagesToScan("lk.ijse.pos.entity");
-        bean.setDataSource(ds);
-        bean.setJpaVendorAdapter(jpa);
+        bean.setPackagesToScan("lk.ijse.employeeData.entity");
+        bean.setDataSource(dataSource);
+        bean.setJpaVendorAdapter(jpaVendorAdapter);
 //        bean.setJpaPropertyMap("");
         return bean;
     }
@@ -54,7 +55,7 @@ public class JpaHibernateConfig {
     @Bean
     public JpaVendorAdapter jpaVendorAdapter(){
         HibernateJpaVendorAdapter va = new HibernateJpaVendorAdapter();
-        va.setDatabasePlatform("org.hibernate.dialect.MySQL8Dialect");
+        va.setDatabasePlatform(env.getProperty("spring.hibernate.dialect"));
         va.setDatabase(Database.MYSQL);
         va.setGenerateDdl(true);
         va.setShowSql(true);
@@ -63,9 +64,9 @@ public class JpaHibernateConfig {
 
     // transaction
     @Bean
-    public PlatformTransactionManager transactionManager(LocalContainerEntityManagerFactoryBean emf){
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(emf.getObject());
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
+        JpaTransactionManager transactionManager = new JpaTransactionManager(emf);
+//        transactionManager.setEntityManagerFactory(emf.getObject());
         return transactionManager;
     }
 }

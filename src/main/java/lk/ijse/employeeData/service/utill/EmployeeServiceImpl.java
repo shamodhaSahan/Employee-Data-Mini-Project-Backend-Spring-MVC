@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created By shamodha_s_rathnamalala
@@ -21,6 +23,7 @@ import java.util.List;
 @Service
 @Transactional
 public class EmployeeServiceImpl implements EmployeeService {
+
     @Autowired
     SessionFactory sessionFactory;
 
@@ -73,10 +76,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeDTO> getAllEmployee() {
         Session session = sessionFactory.openSession();
         try {
-            return session.createQuery("FROM Employee", Employee.class).list().stream().map(this::fromEmployee).toList();
+            return session.createQuery("FROM Employee", Employee.class).list().stream().map(this::fromEmployee).collect(Collectors.toList());
         } finally {
             session.close();
         }
+//        e->fromEmployee(e) - this::fromEmployee
     }
 
     private Employee toEmployee(EmployeeDTO employeeDTO) {

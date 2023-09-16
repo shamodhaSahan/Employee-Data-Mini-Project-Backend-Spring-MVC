@@ -3,11 +3,9 @@ package lk.ijse.employeeData.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Created By shamodha_s_rathnamalala
@@ -21,14 +19,14 @@ import javax.persistence.Table;
 @Data
 public class Employee {
     @Id
-    @Column(name = "employee_Id")
     private String empId;
-    @Column(name = "name")
+    @Column(nullable = false)
     private String empName;
-    @Column(name = "email")
+    @Column(nullable = false)
     private String empEmail;
-    @Column(name = "dep")
+    @Column(nullable = false)
     private String empDep;
-    @Column(name = "profile")
+    @Lob
+    @Column(nullable = false,columnDefinition = "LONGTEXT")
     private String empProfile;
 }

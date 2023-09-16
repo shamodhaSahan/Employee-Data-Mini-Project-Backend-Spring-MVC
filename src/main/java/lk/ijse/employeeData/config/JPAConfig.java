@@ -1,9 +1,9 @@
 package lk.ijse.employeeData.config;
 
+import lk.ijse.employeeData.repository.EmployeeRepo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -11,62 +11,50 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 /**
  * Created By shamodha_s_rathnamalala
- * Date : 9/2/2023
- * Time : 4:01 PM
+ * Date : 8/3/2023
+ * Time : 11:34 PM
  */
 
-//@Configuration
-//@PropertySource("classpath:application.properties")
-public class JpaHibernateConfig {
-    public final Environment env;
 
-    public JpaHibernateConfig(Environment env) {
-        this.env = env;
-    }
-
-    // factory create
+@Configuration
+@EnableTransactionManagement
+@EnableJpaRepositories(basePackageClasses = {EmployeeRepo.class})
+public class JPAConfig {
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(DataSource dataSource, JpaVendorAdapter jpaVendorAdapter){
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource ds, JpaVendorAdapter jpa){
         LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean();
         bean.setPackagesToScan("lk.ijse.employeeData.entity");
-        bean.setDataSource(dataSource);
-        bean.setJpaVendorAdapter(jpaVendorAdapter);
-//        bean.setJpaPropertyMap("");
+        bean.setDataSource(ds);
+        bean.setJpaVendorAdapter(jpa);
         return bean;
     }
-
-    // data source create
     @Bean
     public DataSource dataSource(){
         DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName(env.getProperty("spring.datasource.driver_class"));
-        ds.setUrl(env.getProperty("spring.datasource.url"));
-        ds.setUsername(env.getProperty("spring.datasource.username"));
-        ds.setPassword(env.getProperty("spring.datasource.password"));
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setUrl("jdbc:mysql://localhost/employeeData?createDatabaseIfNotExist=true");
+        ds.setUsername("root");
+        ds.setPassword("Shamodha@27");
         return ds;
     }
-
     @Bean
     public JpaVendorAdapter jpaVendorAdapter(){
         HibernateJpaVendorAdapter va = new HibernateJpaVendorAdapter();
-        va.setDatabasePlatform(env.getProperty("spring.hibernate.dialect"));
+        va.setDatabasePlatform("org.hibernate.dialect.MySQL8Dialect");
         va.setDatabase(Database.MYSQL);
         va.setGenerateDdl(true);
         va.setShowSql(true);
         return va;
     }
-
-    // transaction
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
-        JpaTransactionManager transactionManager = new JpaTransactionManager(emf);
-//        transactionManager.setEntityManagerFactory(emf.getObject());
-        return transactionManager;
+        return new JpaTransactionManager(emf);
     }
 }
